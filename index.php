@@ -1,6 +1,4 @@
-<?php
-$GLOBALS['state'] = 0;
-?>
+
 <script type="text/javascript">
   var mailVal = localStorage.getItem("email");
   if(mailVal){
@@ -10,7 +8,7 @@ $GLOBALS['state'] = 0;
 <?php include "templates/header.php"; ?>
 <div class="indexBackgroundImage">
 	<div class="indexBackgroundCover">
-      <h1>MCDA5540-Assignment2</h1>
+      <h1>Final Project</h1>
   </div>
 </div>
 <?php include "templates/footer.php"; ?>
