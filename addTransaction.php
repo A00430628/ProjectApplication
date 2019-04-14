@@ -176,7 +176,7 @@ catch(PDOException $error) {
  function addInputElement(){
      document.getElementById("numberOfItems").value = parseInt(document.getElementById("numberOfItems").value)+1;
      var count = document.getElementById("numberOfItems").value;
-     var el = document.getElementById("discount");
+     var el = document.getElementById("purchasePrice");
      el.insertAdjacentHTML('beforebegin', `<div class="group row">
                 <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
