@@ -39,16 +39,17 @@ if (isset($_POST['newCustomer'])) {
 
 <div class="signup-wrap"     style="min-height: 288px;">
 	<div class="login-html">
-    <input id="tab-2" type="radio" name="tab" class="sign-up" checked><label for="tab-2" class="tab">Update Record</label>
+    <input id="tab-2" type="radio" name="tab" class="sign-up" checked><label for="tab-2" class="tab">Continue</label>
     <div class="login-form">
     <div class="sign-up-htm" style="transform:rotate(0)">
         <form method="post">
         	<div class="group">
         		<p>User Already Exists!!</p>
         	</div>
-            
+            <br>
+            <br>
             <div class="group">
-                <input type="submit" name="newCustomer"  class="button" value="Update the Record">
+                <input type="submit" name="newCustomer"  class="button" value="Contine with Transaction">
             </div>
         </form>
     </div>
