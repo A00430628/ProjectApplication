@@ -85,7 +85,7 @@ $emptyStyle=  "style='display:block;'";
         <form name="transactionForm" method="post">
             <div class="group">
                 <label for="transactionDate" class="label">Transaction Date:</label>
-                <input id="transactionDate" name="transactionDate" type="text" value="<?php echo date('d/m/y'); ?>" readonly="" class="input"/>
+                <input id="transactionDate" name="transactionDate" type="text" value="<?php echo date('y/m/d'); ?>" readonly="" class="input"/>
             </div>  
             <div class="group">
                 <input type="button" name="addInput" class="button" onclick="addInputElement()" value="ADD ITEM">

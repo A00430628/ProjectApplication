@@ -33,7 +33,14 @@ if (isset($_POST['cancel'])) {
 		$statement = $connection->prepare($sql);
 		$statement->bindParam(':transaction_no', $new_user["transaction_no"], PDO::PARAM_STR);
 		$statement->execute();	
+		$result = $statement->fetchAll();
     if( $statement->rowCount() > 0){
+		$now = time(); // or your date as well
+        $your_date = strtotime($result[0]["transaction_date"]);
+        $datediff = $now - $your_date;
+
+		$datediff = round($datediff / (60 * 60 * 24));
+		if($datediff <= 30){
 		$style = "style='display:none;'";
 		$sql1 = sprintf(
 				"DELETE FROM transaction
@@ -49,6 +56,10 @@ if (isset($_POST['cancel'])) {
          //   header('Location: index.php');
 		//	exit();
 		//}
+		}
+		else{
+			$style = "style='display:block;";
+		}
 	}
 	else{
         //$_SESSION["mobileno"]=$mobileno;
@@ -66,10 +77,10 @@ if (isset($_POST['cancel'])) {
 //}
 ?>
 <?php include "templates/header.php";?>
-<div id="error" <?php echo $style;?>>Mobile Number already exists!</div>
+<div id="error" <?php echo $style;?>>Transaction was done before 30 days!</div>
 <div id="error" <?php echo $emptyStyle;?>>No field can be left empty!</div>
 
-<div class="signup-wrap"     style="min-height: 602px;">
+<div class="signup-wrap"     style="min-height: 288px;">
 	<div class="login-html">
     <input id="tab-2" type="radio" name="tab" class="sign-up" checked><label for="tab-2" class="tab">Cancel Transaction</label>
     <div class="login-form">

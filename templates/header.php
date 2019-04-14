@@ -23,7 +23,8 @@
 	<div class="topnav">
 			<a href="index.php"><strong>Home</strong></a>
 	  <div class="topnav-right">
-		  <a href="view.php"><strong>View Tables</strong></a>
+			<a href="view.php"><strong>View Tables</strong></a>
+			<a href="cancelTransaction.php"><strong>Cancel Transaction</strong></a>
 	    <a href="addArticle.php"><strong>Add Article</strong></a>
 	    <a href="addCustomer.php"><strong>Add Customer</strong></a>
 	  </div>
