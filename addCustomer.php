@@ -67,7 +67,7 @@ if (isset($_POST['addCustomer'])) {
         //if (isset($_POST['newCustomer'])){
         $_SESSION["lname"]=$lname;
         $_SESSION["fname"]=$fname;
-        $_SESSION["telephone_no"]=$telephone_no;
+        $_SESSION["mobileno"]=$mobileno;
         $_SESSION["mailing_address"]=$mailing_address;
         $_SESSION["discount_code"]=$discount_code;
         header('Location: newCustomer.php');
