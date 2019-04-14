@@ -30,16 +30,19 @@ if (isset($_POST['addCustomer'])) {
 		$new_user = array(
 			"lname" => $lname,
 			"fname"     => $fname,
-            "telephone_no"       => $mobileno,
+            "telephone_no" => $mobileno,
             "mailing_address" => $mailingAddress,
 			"discount_code"  => $discountCode
 		);
 		$sql = sprintf(
 				"SELECT *
 				FROM customer
-				WHERE telephone_no = :telephone_no");
+				WHERE lname = :lname AND fname = :fname");
 		$statement = $connection->prepare($sql);
-		$statement->bindParam(':telephone_no', $new_user["telephone_no"], PDO::PARAM_STR);
+		//$statement->bindParam(':telephone_no', $new_user["telephone_no"], PDO::PARAM_STR);
+        $statement->bindParam(':lname', $new_user["lname"], PDO::PARAM_STR);
+        $statement->bindParam(':fname', $new_user["fname"], PDO::PARAM_STR);
+
 		$statement->execute();
     if( $statement->rowCount() == 0){
 		$style = "style='display:none;'";
@@ -52,18 +55,24 @@ if (isset($_POST['addCustomer'])) {
 
 		$statement = $connection->prepare($sql1);
 		$statement->execute($new_user);
-		$connection = null;
+		//$connection = null;
 		if ($statement->rowCount() > 0) {
             $_SESSION["mobileno"]=$mobileno;
             header('Location: addTransaction.php');
-			 exit();
+			 //exit();
 		}
 	}
 	else{
-        $_SESSION["mobileno"]=$mobileno;
-        header('Location: addTransaction.php');
-		// $style = "style='display:block;'";
-	}
+        ///echo "Are you a new Customer!";
+        //if (isset($_POST['newCustomer'])){
+        $_SESSION["lname"]=$lname;
+        $_SESSION["fname"]=$fname;
+        $_SESSION["telephone_no"]=$telephone_no;
+        $_SESSION["mailing_address"]=$mailing_address;
+        $_SESSION["discount_code"]=$discount_code;
+        header('Location: newCustomer.php');
+	   //}
+    }
 	} catch(PDOException $error) {
 	       echo $error->getMessage();
 				 die();
@@ -108,11 +117,22 @@ $emptyStyle=  "style='display:block;'";
             <div class="group">
                 <input type="submit" name="addCustomer"  class="button" value="ADD CUSTOMER">
             </div>
+
         </form>
     </div>
     </div>  
     </div>
 </div> 
+<!-- <script type="text/javascript">
+   function removeItem(el){
+    var parent = $(el).parent();
+    $(el).parent().empty();
+    parent.remove();
+    calculatePrice();
+}
+  
+
+</script> -->
 </body>
 
 </html>

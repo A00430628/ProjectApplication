@@ -39,7 +39,7 @@ if (isset($_POST['addTransaction'])) {
         $new_user = array(
                 "transaction_date" => $transactionDate,
                 "total_price"     => $totalPrice,
-                "purchase_price"       => $purchasePrice,
+                "purchase_price"  => $purchasePrice,
                 "discount" => $discount,
                 "cid"  => $result[0][0]
             );
@@ -55,6 +55,7 @@ if (isset($_POST['addTransaction'])) {
 		$statement = $connection->prepare($sql1);
 		$statement->execute($new_user);
 		$connection = null;
+
 		if ($statement->rowCount() > 0) {
             header('Location: index.php');
 			 exit();
@@ -136,6 +137,8 @@ $emptyStyle=  "style='display:block;'";
             </div>`);
 
 } 
+
+
 
 function removeItem(el){
     var parent = $(el).parent();
