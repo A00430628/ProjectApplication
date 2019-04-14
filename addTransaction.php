@@ -1,6 +1,5 @@
 <?php session_start();?>
 <?php
-
 /**
  * Use an HTML form to create a new entry in the
  * users table.
@@ -26,32 +25,20 @@ if (isset($_POST['addTransaction'])) {
     $itemIdPresent = 1;
 	$connection = new PDO($dsn, $username, $password, $options);
     $transactionDate = $_POST['transactionDate'];
-<<<<<<< HEAD
     $purchasePrice = 0;
     $discount = 0;
     $totalPrice = 0;
     $mobileno = $_SESSION["mobileno"];
-=======
-    $purchasePrice = $_POST['purchasePrice'];
-    $discount = 0;
-    $totalPrice = 0;
-    $mobileno = $_SESSION["mobileno"];
-
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
     for($i =1; $i <= $_POST['numberOfItems']; $i++){
     $new_item = array(
         "_id"     =>  $_POST['itemId'.$i],
         "price"       => $_POST['itemPrice'.$i]
     );
-<<<<<<< HEAD
     $purchasePrice += $new_item["price"];
-=======
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
     $sql_item = sprintf(
         "SELECT count(*)
         FROM item
         WHERE _id = :_id AND price = :price");
-
     $statement = $connection->prepare($sql_item);
     $statement->bindParam(':_id', $new_item["_id"], PDO::PARAM_STR);
     $statement->bindParam(':price', $new_item["price"], PDO::PARAM_STR);
@@ -74,7 +61,6 @@ if (isset($_POST['addTransaction'])) {
 		$statement->bindParam(':telephone_no', $mobileno, PDO::PARAM_STR);
         $statement->execute();
         $result = $statement->fetchAll();
-
         $sql_discount = sprintf(
             "SELECT SUM(total_price) as total
             FROM transaction
@@ -93,9 +79,6 @@ if (isset($_POST['addTransaction'])) {
            $discount = floor($result1[0][0]/100);
            $totalPrice = $purchasePrice*(1-(2.5*($discount/100)));
        }
-
-
-
         $new_user = array(
                 "transaction_date" => $transactionDate,
                 "total_price"     => $totalPrice,
@@ -103,7 +86,6 @@ if (isset($_POST['addTransaction'])) {
                 "discount" => $discount,
                 "cid"  => $result[0][0]
             );
-
     
     if( $statement->rowCount() != 0){
 		$style = "style='display:none;'";
@@ -113,11 +95,9 @@ if (isset($_POST['addTransaction'])) {
 				implode(", ", array_keys($new_user)),
 				":" . implode(", :", array_keys($new_user))
 		);
-
 		$statement = $connection->prepare($sql1);
 		$statement->execute($new_user);
 		$connection = null;
-
 		if ($statement->rowCount() > 0) {
             $successStyle = "style='display:block;'";
             //header('Location: index.php');
@@ -127,7 +107,6 @@ if (isset($_POST['addTransaction'])) {
 	else{
 		$style = "style='display:block;'";
 	}
-
 }
 else{
 $emptyStyle=  "style='display:block;'";
@@ -136,7 +115,6 @@ $emptyStyle=  "style='display:block;'";
         echo "Exit From Loop";
         $itemStyle=  "style='display:block;'";
     }
-
 } 
 catch(PDOException $error) {
     echo $error->getMessage();
@@ -162,11 +140,7 @@ catch(PDOException $error) {
             </div>  
             <div class="group">
                 <input type="button" name="addInput" class="button" onclick="addInputElement()" value="ADD ITEM">
-<<<<<<< HEAD
                 <input type="text" id="numberOfItems" style="visibility:hidden" required="false" name="numberOfItems" value="1">
-=======
-                <input type="text" id="numberOfItems" style="visibility:hidden" name="numberOfItems" value="1">
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
             </div> 
             <div class="group row">
                 <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
@@ -176,18 +150,10 @@ catch(PDOException $error) {
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                 <label for="itemPrice1" class="label">Item Price:</label>
-<<<<<<< HEAD
                 <input id="itemPrice1" name="itemPrice1" type="number" min="1" step="any" class="input itemPrice"/>
                 </div>
             </div> 
             <div class="group" id="submitButton">
-=======
-                <input id="itemPrice1" name="itemPrice1" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
-                </div>
-            </div>
-            <input id="purchasePrice" name="purchasePrice" style="visibility:hidden" type="number" class="input"> 
-            <div class="group">
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
                 <input type="submit" name="addTransaction" class="button" value="ADD TRANSACTION">
             </div>
         </form>
@@ -200,11 +166,7 @@ catch(PDOException $error) {
  function addInputElement(){
      document.getElementById("numberOfItems").value = parseInt(document.getElementById("numberOfItems").value)+1;
      var count = document.getElementById("numberOfItems").value;
-<<<<<<< HEAD
      var el = document.getElementById("submitButton");
-=======
-     var el = document.getElementById("purchasePrice");
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
      el.insertAdjacentHTML('beforebegin', `<div class="group row">
                 <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -216,34 +178,13 @@ catch(PDOException $error) {
                 <input id="itemPrice${count}" name="itemPrice${count}" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
                 </div>
             </div>`);
-
 } 
-
-
-
 function removeItem(el){
     var parent = $(el).parent();
     $(el).parent().empty();
     parent.remove();
     document.getElementById("numberOfItems").value = parseInt(document.getElementById("numberOfItems").value)-1;
-<<<<<<< HEAD
 }
-=======
-    calculatePrice();
-}
-function calculatePrice() {
-        var els =  document.getElementsByClassName('itemPrice');
-        //console.log(purchasePrice);
-        var purchasePrice = 0;
-        for (let el of els){
-            if(el.value){
-            purchasePrice+=parseFloat(el.value);
-        }
-            }
-        
-        document.getElementById('purchasePrice').value = purchasePrice;
-}
->>>>>>> b72f242ef731457573efb0b3767ca3e804e306eb
 </script>
 </body>
 
