@@ -8,6 +8,8 @@
  */
 require "config.php";
 require "common.php";
+$successStyle = "";
+$itemStyle = "";
 $style = "";
 $emptyStyle= ""; ?>
 <!-- <script type="text/javascript">
@@ -18,15 +20,40 @@ $emptyStyle= ""; ?>
 </script> -->
 <?php
 if (isset($_POST['addTransaction'])) {
+    try {
+    $successStyle =  "style='display:none;'";
+    $itemStyle=  "style='display:none;'";
+    $itemIdPresent = 1;
+	$connection = new PDO($dsn, $username, $password, $options);
     $transactionDate = $_POST['transactionDate'];
     $purchasePrice = $_POST['purchasePrice'];
-    $discount = $_POST['discountPrice'];
-    $totalPrice = $_POST['totalPrice'];
+    $discount = 0;
+    $totalPrice = 0;
     $mobileno = $_SESSION["mobileno"];
-	if (!empty($purchasePrice) && !empty($discount)) {
+
+    for($i =1; $i <= $_POST['numberOfItems']; $i++){
+    $new_item = array(
+        "_id"     =>  $_POST['itemId'.$i],
+        "price"       => $_POST['itemPrice'.$i]
+    );
+    $sql_item = sprintf(
+        "SELECT count(*)
+        FROM item
+        WHERE _id = :_id AND price = :price");
+
+    $statement = $connection->prepare($sql_item);
+    $statement->bindParam(':_id', $new_item["_id"], PDO::PARAM_STR);
+    $statement->bindParam(':price', $new_item["price"], PDO::PARAM_STR);
+    $statement->execute();
+    $result = $statement->fetchAll();
+	if ($result[0][0] == 0) {
+        $itemIdPresent = 0;
+        break;
+    }
+}
+    if($itemIdPresent == 1){
+	if (!empty($purchasePrice)) {
 		$emptyStyle=  "style='display:none;'";
-  try {
-		$connection = new PDO($dsn, $username, $password, $options);
 		
 		$sql = sprintf(
 				"SELECT cid
@@ -36,6 +63,28 @@ if (isset($_POST['addTransaction'])) {
 		$statement->bindParam(':telephone_no', $mobileno, PDO::PARAM_STR);
         $statement->execute();
         $result = $statement->fetchAll();
+
+        $sql_discount = sprintf(
+            "SELECT SUM(total_price) as total
+            FROM transaction
+            WHERE transaction_date <= NOW()
+            and transaction_date >= Date_add(Now(),interval - 60 month)
+            AND cid = :cid;");
+       $statement1 = $connection->prepare($sql_discount);
+       $statement1->bindParam(':cid', $result[0][0], PDO::PARAM_STR);
+       $statement1->execute();
+       $result1 = $statement1->fetchAll();
+       if($result1[0][0] >= 500){
+        $discount = 5;
+        $totalPrice = $purchasePrice*(1-(2.5*($discount/100)));
+       }
+       else{
+           $discount = floor($result1[0][0]/100);
+           $totalPrice = $purchasePrice*(1-(2.5*($discount/100)));
+       }
+
+
+
         $new_user = array(
                 "transaction_date" => $transactionDate,
                 "total_price"     => $totalPrice,
@@ -56,24 +105,34 @@ if (isset($_POST['addTransaction'])) {
 		$statement->execute($new_user);
 		$connection = null;
 		if ($statement->rowCount() > 0) {
-            header('Location: index.php');
-			 exit();
+            $successStyle = "style='display:block;'";
+            //header('Location: index.php');
+			//exit();
 		}
 	}
 	else{
 		$style = "style='display:block;'";
 	}
-	} catch(PDOException $error) {
-	       echo $error->getMessage();
-				 die();
-	}
+
 }
 else{
 $emptyStyle=  "style='display:block;'";
 }
+    }else{
+        echo "Exit From Loop";
+        $itemStyle=  "style='display:block;'";
+    }
+
+} 
+catch(PDOException $error) {
+    echo $error->getMessage();
+    die();
+}
 }
 ?>
 <?php $GLOBALS['state'] = 0; include "templates/header.php";?>
+<div id="error" <?php echo $successStyle;?>>Transaction Successful for <?php echo $totalPrice;?> at a discount of <?php echo $discount;?>!</div>
+<div id="error" <?php echo $itemStyle;?>>Item Id or Price doesn't exist!</div>
 <div id="error" <?php echo $style;?>>Customer doesn't exist!</div>
 <div id="error" <?php echo $emptyStyle;?>>No field can be left empty!</div>
 
@@ -89,28 +148,20 @@ $emptyStyle=  "style='display:block;'";
             </div>  
             <div class="group">
                 <input type="button" name="addInput" class="button" onclick="addInputElement()" value="ADD ITEM">
+                <input type="text" id="numberOfItems" style="visibility:hidden" name="numberOfItems" value="1">
             </div> 
             <div class="group row">
                 <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label for="itemId" class="label">Item Id:</label>
-                <input id="itemId" name="itemId" type="number" class="input"/>
+                <label for="itemId1" class="label">Item Id:</label>
+                <input id="itemId1" name="itemId1" type="number" class="input"/>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label for="item" class="label">Item Price:</label>
-                <input id="itemPrice" name="itemPrice" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
+                <label for="itemPrice1" class="label">Item Price:</label>
+                <input id="itemPrice1" name="itemPrice1" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
                 </div>
             </div>
             <input id="purchasePrice" name="purchasePrice" style="visibility:hidden" type="number" class="input"> 
-            <div class="group" id="discount">
-                <label for="discountPrice" class="label">Discount:</label>
-                <input id="discountPrice" name="discountPrice" type="number" onchange="calculatePrice()" class="input"> 
-            </div>
-            <div class="group">
-                <label for="totalPrice" class="label">Total Price:</label>
-                <input id="totalPrice" name="totalPrice" type="text"  readonly="" class="input"/>
-            </div>
-
             <div class="group">
                 <input type="submit" name="addTransaction" class="button" value="ADD TRANSACTION">
             </div>
@@ -122,16 +173,18 @@ $emptyStyle=  "style='display:block;'";
 
 <script type="text/javascript">   
  function addInputElement(){
+     document.getElementById("numberOfItems").value = parseInt(document.getElementById("numberOfItems").value)+1;
+     var count = document.getElementById("numberOfItems").value;
      var el = document.getElementById("discount");
      el.insertAdjacentHTML('beforebegin', `<div class="group row">
                 <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label for="itemId" class="label">Item Id:</label>
-                <input id="itemId" name="itemId" type="number" class="input"/>
+                <label for="itemId${count}" class="label">Item Id:</label>
+                <input id="itemId${count}" name="itemId${count}" type="number" class="input"/>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                <label for="item" class="label">Item Price:</label>
-                <input id="itemPrice" name="itemPrice" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
+                <label for="itemPrice${count}" class="label">Item Price:</label>
+                <input id="itemPrice${count}" name="itemPrice${count}" type="number" min="1" step="any" onchange="calculatePrice()" class="input itemPrice"/>
                 </div>
             </div>`);
 
@@ -141,9 +194,10 @@ function removeItem(el){
     var parent = $(el).parent();
     $(el).parent().empty();
     parent.remove();
+    document.getElementById("numberOfItems").value = parseInt(document.getElementById("numberOfItems").value)-1;
     calculatePrice();
 }
-    function calculatePrice() {
+function calculatePrice() {
         var els =  document.getElementsByClassName('itemPrice');
         //console.log(purchasePrice);
         var purchasePrice = 0;
@@ -152,12 +206,9 @@ function removeItem(el){
             purchasePrice+=parseFloat(el.value);
         }
             }
-        var discount = document.getElementById('discountPrice').value?document.getElementById('discountPrice').value:0;
-        var totalPrice = 0;
-        totalPrice = purchasePrice - purchasePrice * (parseFloat(discount) / 100);
-        document.getElementById('totalPrice').value = totalPrice;
+        
         document.getElementById('purchasePrice').value = purchasePrice;
-    }
+}
 </script>
 </body>
 

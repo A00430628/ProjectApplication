@@ -173,7 +173,7 @@ function removeItem(el){
     var parent = $(el).parent();
     $(el).parent().empty();
     parent.remove();
-    document.getElementById("numberOfAuthors").value = parseInt(document.getElementById("numberOfAuthors").value)+1;
+    document.getElementById("numberOfAuthors").value = parseInt(document.getElementById("numberOfAuthors").value)-1;
 }
 </script>
 </body>
