@@ -45,24 +45,43 @@ if (isset($_POST['addArticle'])) {
 		$statement->bindParam(':unique_id', $new_user["unique_id"], PDO::PARAM_STR);
 		$statement->execute();
     if( $statement->rowCount() == 0){
-		$style = "style='display:none;'";
-		$sql1 = sprintf(
-				"INSERT INTO %s (%s) values (%s)",
-				"articles",
-				implode(", ", array_keys($new_user)),
-				":" . implode(", :", array_keys($new_user))
-		);
+        $style = "style='display:none;'";
+        $sql1 = sprintf(
+            "INSERT INTO %s (%s) values (%s)",
+            "articles",
+            implode(", ", array_keys($new_user)),
+            ":" . implode(", :", array_keys($new_user))
+    );
 
-		$statement = $connection->prepare($sql1);
-		$statement->execute($new_user);
-		$connection = null;
-		if ($statement->rowCount() > 0) {
+    $statement = $connection->prepare($sql1);
+    $statement->execute($new_user);
+
+    for($i =1; $i <= $_POST['numberOfAuthors']; $i++)
+{
+    $new_author = array(
+        "lname"     =>  $_POST['authorLastName'.$i],
+        "fname"       => $_POST['authorFirstName'.$i],
+        "email" => "",
+    );
+    $sql_author = sprintf(
+				"INSERT INTO %s (%s) values (%s)",
+				"author",
+				implode(", ", array_keys($new_author)),
+				":" . implode(", :", array_keys($new_author))
+	);
+
+	$statement = $connection->prepare($sql_author);
+    $statement->execute($new_author);
+    $connection = null;
+	if ($statement->rowCount() > 0) {
             header('Location: index.php');
-			 exit();
-		}
+             exit();
+    }
+}
+
 	}
 	else{
-		$style = "style='display:block;'";
+		$style = "style='display:block;";
 	}
 	} catch(PDOException $error) {
 	       echo $error->getMessage();
@@ -78,10 +97,10 @@ $emptyStyle=  "style='display:block;'";
 <div id="error" <?php echo $style;?>>Article ID already exists!</div>
 <div id="error" <?php echo $emptyStyle;?>>No field can be left empty!</div>
 
-<div class="signup-wrap"     style="min-height: 680px;">
+<div class="signup-wrap"     style="height: 100%;">
 	<div class="login-html">
     <input id="tab-2" type="radio" name="tab" class="sign-up" checked><label for="tab-2" class="tab">Add Article</label>
-<div class="login-form">
+<div class="login-form" style="overflow:auto;height:100%;overflow-x: hidden;">
     <div class="sign-up-htm">
         <form method="post">
             <div class="group">
@@ -109,6 +128,21 @@ $emptyStyle=  "style='display:block;'";
                 <input id="magazineId" name="magazineId" type="number" class="input">
             </div>
             <div class="group">
+                <input type="button" name="addInput" class="button" onclick="addInputElement()" value="ADD Author">
+                <input type="text" id="numberOfAuthors" style="visibility:hidden" name="numberOfAuthors" value="1">
+            </div> 
+            <div class="group row">
+                <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <label for="authorFirstName1" class="label">Author First Name:</label>
+                <input id="authorFirstName1" name="authorFirstName1" type="text" class="input"/>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <label for="authorLastName1" class="label">Author Last Name:</label>
+                <input id="authorLastName1" name="authorLastName1" type="text" class="input"/>
+                </div>
+            </div>
+            <div class="group" id="articleSubmit">
                 <input type="submit" name="addArticle" class="button" value="ADD ARTICLE">
             </div>
         </form>
@@ -116,6 +150,32 @@ $emptyStyle=  "style='display:block;'";
 </div>   
 </div>
 </div>
+<script type="text/javascript">   
+ function addInputElement(){
+     document.getElementById("numberOfAuthors").value = parseInt(document.getElementById("numberOfAuthors").value)+1;
+     var count = document.getElementById("numberOfAuthors").value;
+     var el = document.getElementById("articleSubmit");
+     el.insertAdjacentHTML('beforebegin', `<div class="group row">
+                <span onclick="removeItem(this)" style="position: absolute;right: 0;color: beige;border: 1px solid;z-index: 1111;cursor: pointer;">X</span>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <label for="authorFirstName${count}" class="label">Author First Name:</label>
+                <input id="authorFirstName${count}" name="authorFirstName${count}" type="text" class="input"/>
+                </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                <label for="authorLastName${count}" class="label">Author Last Name:</label>
+                <input id="authorLastName${count}" name="authorLastName${count}" type="text" class="input"/>
+                </div>
+            </div>`);
+
+} 
+
+function removeItem(el){
+    var parent = $(el).parent();
+    $(el).parent().empty();
+    parent.remove();
+    document.getElementById("numberOfAuthors").value = parseInt(document.getElementById("numberOfAuthors").value)+1;
+}
+</script>
 </body>
 
 </html>
